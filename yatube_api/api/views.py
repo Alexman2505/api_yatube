@@ -15,13 +15,13 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        super().perform_update(serializer)
+            raise PermissionDenied('Изменение чужого поста запрещено!')
+        super(PostViewSet, self).perform_update(serializer)
 
     def perform_destroy(self, instance):
         if instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        instance.delete()
+            raise PermissionDenied('Удаление чужого поста запрещено!')
+        super(PostViewSet, self).perform_destroy(instance)
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,10 +43,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        super().perform_update(serializer)
+            raise PermissionDenied('Изменение чужого комментария запрещено!')
+        super(CommentViewSet, self).perform_update(serializer)
 
     def perform_destroy(self, instance):
         if instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        instance.delete()
+            raise PermissionDenied('Изменение чужого комментария запрещено!')
+        super(CommentViewSet, self).perform_destroy(instance)
