@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
-from posts.models import Group, Post
-from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from posts.models import Group, Post
 from .serializers import CommentSerializer, GroupSerializer, PostSerializer
 
 
-class PostViewSet(viewsets.ModelViewSet):
+class PostViewSet(ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
@@ -24,21 +24,24 @@ class PostViewSet(viewsets.ModelViewSet):
         super(PostViewSet, self).perform_destroy(instance)
 
 
-class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+class GroupViewSet(ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
 
+    def get_post(self):
+        return get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+
     def get_queryset(self):
-        post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+        post = self.get_post()
         new_queryset = post.comments.all()
         return new_queryset
 
     def perform_create(self, serializer):
-        post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+        post = self.get_post()
         serializer.save(author=self.request.user, post=post)
 
     def perform_update(self, serializer):
